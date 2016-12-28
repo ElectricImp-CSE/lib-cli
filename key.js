@@ -8,7 +8,7 @@ var argv = require('yargs')
     .usage("Usage: $0 -e <username> -p <password>")
     .option('e', {
         alias: 'email',
-        desc: 'User email'
+        desc: 'Username or email'
     })
     .option('p', {
         alias: 'password',

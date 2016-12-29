@@ -231,6 +231,15 @@ function list(argv, callback) {
     https.request(options, reqCallback).end();
 }
 
+function logObj(obj) {
+    console.log(util.inspect(obj, {depth: null, colors: true}));
+}
+
+function logJSONString(jsonString) {
+    const object = JSON.parse(jsonString);
+    console.dir(object, {depth: null, colors: true});
+}
+
 function listLibraries(argv) {
     list(argv, function (libs) {
         if (!libs) {
@@ -238,7 +247,7 @@ function listLibraries(argv) {
         }
         libs.forEach(function (library) {
             if (!argv.name || library.attributes.name.indexOf(argv.name) >= 0) {
-                console.log(util.inspect(library, {depth: null, colors: true}))
+                logObj(library);
             }
         })
     });
@@ -248,7 +257,6 @@ function createLibrary(argv) {
     var options = getHTTPOptions(argv, "POST", API_PATH_V5_LIBS);
     var payload = getPayload(undefined, "library", argv.n, argv.d, argv.r, argv.permission, argv.supported);
 
-    // TODO: cleanup usage the code duplication when using the callback across the code
     var callback = function (response) {
         var str = '';
         response.on('data', function (chunk) {
@@ -256,11 +264,10 @@ function createLibrary(argv) {
         });
 
         response.on('end', function () {
-            console.log(str);
+            logJSONString(str);
         });
     };
 
-    console.log(JSON.stringify(payload));
     var req = https.request(options, callback);
     req.write(JSON.stringify(payload));
     req.end();
@@ -287,24 +294,24 @@ function getLibraryByName(libraryName, argv, callback) {
     });
 }
 
+function logJSONResponseStringCallback(response) {
+    var str = '';
+    response.on('data', function (chunk) {
+        str += chunk;
+    });
+
+    response.on('end', function () {
+        logJSONString(str);
+    });
+}
+
 function updateLibrary(argv) {
     getLibraryByName(argv.name, argv, function (foundLib) {
         var libId = foundLib.id;
         var options = getHTTPOptions(argv, "PATCH", API_PATH_V5_LIBS + libId);
         var payload = getPayload(libId, "library", undefined, argv.d, argv.r, argv.permission, argv.supported);
 
-        var reqCallback = function (response) {
-            var str = '';
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
-
-            response.on('end', function () {
-                console.log(str);
-            });
-        };
-
-        var req = https.request(options, reqCallback);
+        var req = https.request(options, logJSONResponseStringCallback);
         req.write(JSON.stringify(payload));
         req.end();
     });
@@ -321,19 +328,7 @@ function createVersion(argv) {
             var options = getHTTPOptions(argv, "POST", API_PATH_V5_LIBS + libId + '/versions');
             var payload = getPayload(undefined, "libraryversion", undefined, argv.d, argv.r, undefined, argv.supported, argv.v, code);
 
-            var callback = function (response) {
-                var str = '';
-                response.on('data', function (chunk) {
-                    str += chunk;
-                });
-
-                response.on('end', function () {
-                    console.log(str);
-                });
-            };
-
-            console.log(JSON.stringify(payload));
-            var req = https.request(options, callback);
+            var req = https.request(options, logJSONResponseStringCallback);
             req.write(JSON.stringify(payload));
             req.end();
         });
@@ -361,19 +356,7 @@ function updateVersion(argv) {
         var options = getHTTPOptions(argv, "PATCH", API_PATH_V5_LIBS + foundLib.id + '/versions/' + foundVersion.id);
         var payload = getPayload(foundVersion.id, "libraryversion", undefined, argv.d, argv.r, undefined, argv.supported);
 
-        var callback = function (response) {
-            var str = '';
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
-
-            response.on('end', function () {
-                console.log(str);
-            });
-        };
-
-        console.log(JSON.stringify(payload));
-        var req = https.request(options, callback);
+        var req = https.request(options, logJSONResponseStringCallback);
         req.write(JSON.stringify(payload));
         req.end();
     });

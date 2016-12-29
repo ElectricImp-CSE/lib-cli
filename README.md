@@ -62,3 +62,7 @@ $ node lib update-version -k <key> -n <name> -v <version> -d <description> -r <r
 ```
 
 Updates the specified library version.
+
+## License
+
+Bullwinkle is licensed under the [MIT License](./LICENSE).

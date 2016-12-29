@@ -6,58 +6,182 @@ const API_PATH_V5_LIBS = "/v5/libraries/";
 
 var fs = require("fs");
 var https = require('https');
+var util = require("util");
 
 var argv = require('yargs')
     .usage("Usage: $0 <command> [options]")
-    .command('list', 'Lists the specified or all libraries available', {}, listLibraries)
-    .command('create', 'Creates the new library', {}, createLibrary)
-    .command('update', 'Updates the library with the options specified', {}, updateLibrary)
-    .command('create-version', 'Creates the new library version', {}, createVersion)
-    .command('update-version', 'Updates the library with the options specified', {}, updateVersion)
+    .command({
+        command: 'list',
+        aliases: ['l'],
+        desc: 'Lists the specified or all libraries available',
+        builder: function (yargs) {
+            yargs
+                .option('n', {
+                    alias: 'name',
+                    desc: 'Library name',
+                    type: 'string'
+                })
+        },
+        handler: listLibraries
+    })
+    .command({
+        command: 'create',
+        aliases: ['create-library'],
+        desc: 'Creates the new library',
+        builder: function (yargs) {
+            yargs
+                .option('n', {
+                    alias: 'name',
+                    desc: 'Library name',
+                    type: 'string',
+                    required: true
+                })
+                .option('d', {
+                    alias: 'description',
+                    desc: 'New library description',
+                    type: 'string'
+                })
+                .option('r', {
+                    alias: 'reference',
+                    desc: 'External reference to the library (github)',
+                    type: 'string'
+                })
+                .option('permission', {
+                    desc: 'Library permission',
+                    choices: ['private', 'require', 'view'],
+                    default: 'private',
+                    type: 'string'
+                })
+                .option('supported', {
+                    desc: 'Library status (supported or not)',
+                    default: true,
+                    type: 'boolean'
+                })
+        },
+        handler: createLibrary
+    })
+    .command({
+        command: 'update',
+        aliases: ['update-library', 'up', 'u'],
+        desc: 'Patch the existing library attributes',
+        builder: function (yargs) {
+            yargs
+                .option('n', {
+                    alias: 'name',
+                    desc: 'Library name',
+                    type: 'string',
+                    required: true
+                })
+                .option('d', {
+                    alias: 'description',
+                    desc: 'New library description',
+                    type: 'string'
+                })
+                .option('r', {
+                    alias: 'reference',
+                    desc: 'Reference to the library sources (at GitHub)',
+                    type: 'string'
+                })
+                .option('permission', {
+                    desc: 'Library permission',
+                    choices: ['private', 'require', 'view'],
+                    default: 'private',
+                    type: 'string'
+                })
+                .option('supported', {
+                    desc: 'Library status (supported or not)',
+                    default: true,
+                    type: 'boolean'
+                })
+        },
+        handler: updateLibrary
+    })
+    .command({
+        command: 'create-version',
+        aliases: ['cv', 'version'],
+        desc: 'Creates the new library version',
+        builder: function (yargs) {
+            yargs
+                .option('n', {
+                    alias: 'name',
+                    desc: 'Library name',
+                    type: 'string',
+                    required: true
+                })
+                .option('d', {
+                    alias: 'description',
+                    desc: 'New library description',
+                    type: 'string'
+                })
+                .option('r', {
+                    alias: 'reference',
+                    desc: 'Reference to the library version sources (at GitHub)',
+                    type: 'string'
+                })
+                .option('supported', {
+                    desc: 'Version status (supported or not)',
+                    default: true,
+                    type: 'boolean'
+                })
+                .option('v', {
+                    alias: 'version',
+                    desc: 'Library version string',
+                    type: 'string'
+                })
+                .option('f', {
+                    alias: 'file',
+                    desc: 'Source code of the library',
+                    type: 'string'
+                })
+        },
+        handler: createVersion
+    })
+    .command({
+        command: 'update-version',
+        aliases: ['uv'],
+        desc: 'Updates the library with the options specified',
+        builder: function (yargs) {
+            yargs
+                .option('n', {
+                    alias: 'name',
+                    desc: 'Library name',
+                    type: 'string',
+                    required: true
+                })
+                .option('v', {
+                    alias: 'version',
+                    desc: 'Library version string',
+                    type: 'string',
+                    required: true
+                })
+                .option('d', {
+                    alias: 'description',
+                    desc: 'New library description',
+                    type: 'string'
+                })
+                .option('r', {
+                    alias: 'reference',
+                    desc: 'Reference to the library version sources (at GitHub)',
+                    type: 'string'
+                })
+                .option('supported', {
+                    desc: 'Version status (supported or not)',
+                    default: true,
+                    type: 'boolean'
+                })
+        },
+        handler: updateVersion
+    })
     .option('k', {
-        alias: ['api-key', 'key'],
-        desc: 'Library API key'
-    })
-    .option('n', {
-        alias: 'name',
-        desc: 'Library name',
-        type: 'string'
-    })
-    .option('d', {
-        alias: 'description',
-        desc: 'Library description',
-        type: 'string'
-    })
-    .option('r', {
-        alias: 'reference',
-        desc: 'External reference',
-        type: 'string'
-    })
-    .option('v', {
-        alias: 'version',
-        desc: 'Library version',
-        type: 'string'
-    })
-    .option('f', {
-        alias: 'file',
-        desc: 'Source code of the library',
-        type: 'string'
-    })
-    .option('supported', {
-        desc: 'Specified the supported status of the library',
-        default: true,
-        type: 'boolean'
-    })
-    .option('permission', {
-        desc: 'Library permission',
-        choices: ['private', 'require', 'view'],
-        default: 'private',
-        type: 'string'
+        alias: 'key',
+        desc: 'Library API key',
+        type: 'string',
+        required: true
     })
     .help('h')
     .alias('h', 'help')
-    .global(['k', 'n', 'd', 'f', 'v', 'supported', 'permission'])
-    .wrap(80)
+    .global('k')
+    .wrap(100)
     .argv;
 
 function getHTTPOptions(argv, method, path) {
@@ -114,7 +238,7 @@ function listLibraries(argv) {
         }
         libs.forEach(function (library) {
             if (!argv.name || library.attributes.name.indexOf(argv.name) >= 0) {
-                console.log(JSON.stringify(library));
+                console.log(util.inspect(library, {depth: null, colors: true}))
             }
         })
     });
@@ -192,7 +316,7 @@ function createVersion(argv) {
             console.error("Error reading the file: " + argv.file);
             return
         }
-        getLibraryByName(argv.name, argv, function(foundLib) {
+        getLibraryByName(argv.name, argv, function (foundLib) {
             var libId = foundLib.id;
             var options = getHTTPOptions(argv, "POST", API_PATH_V5_LIBS + libId + '/versions');
             var payload = getPayload(undefined, "libraryversion", undefined, argv.d, argv.r, undefined, argv.supported, argv.v, code);
@@ -217,7 +341,7 @@ function createVersion(argv) {
 }
 
 function updateVersion(argv) {
-    getLibraryByName(argv.name, argv, function(foundLib) {
+    getLibraryByName(argv.name, argv, function (foundLib) {
         var foundVersion = null;
         if (foundLib.relationships && foundLib.relationships.versions) {
             var versions = foundLib.relationships.versions;

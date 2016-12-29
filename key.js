@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Copyright (c) 2016 Electric Imp
 
 const API_URL_HOST = "api.ei.run";
@@ -14,6 +16,7 @@ var argv = require('yargs')
         alias: 'password',
         desc: 'User password'
     })
+    .required(['e', 'p'])
     .help('h')
     .alias('h', 'help')
     .argv;

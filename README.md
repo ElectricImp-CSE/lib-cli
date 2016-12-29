@@ -11,7 +11,10 @@ To use the tools you need to have the Node.js/npm installed.
 
 ### Help
 
-You can always run `$ node lib -h` or `$ node key -h` for help, usage and options description. 
+**lib.js**: you can always run `node lib [option] -h` to show commands and options overview or display specific 
+information on the selected command.  
+
+**key.js**: `node key -h` shows help on the key tool.
 
 ### Library API Key Generation
 

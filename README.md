@@ -11,8 +11,20 @@ To use the tools you need to have the Node.js/npm installed.
 
 ### Help
 
-**lib.js**: you can always run `node lib [option] -h` to show commands and options overview or display specific 
-information on the selected command.  
+**lib.js**: you can always use **-h** argument along with a command (`node lib [option] -h`) to show descriptions of
+arguments expected to be used with the command. For example:
+
+```
+$ node lib.js list -h
+lib.js list
+
+Options:
+  -k, --key   Library API key                   [string] [required]
+  -h, --help  Show help                                   [boolean]
+  -n, --name  Library name                                 [string]
+
+```
+
 
 **key.js**: `node key -h` shows help on the key tool.
 

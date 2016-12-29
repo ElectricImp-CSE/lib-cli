@@ -48,13 +48,15 @@ var argv = require('yargs')
                     desc: 'External reference to the library (github)',
                     type: 'string'
                 })
-                .option('permission', {
+                .option('p', {
+                    alias: 'permission',
                     desc: 'Library permission',
                     choices: ['private', 'require', 'view'],
                     default: 'private',
                     type: 'string'
                 })
-                .option('supported', {
+                .option('s', {
+                    alias: 'supported',
                     desc: 'Library status (supported or not)',
                     default: true,
                     type: 'boolean'
@@ -84,13 +86,15 @@ var argv = require('yargs')
                     desc: 'Reference to the library sources (at GitHub)',
                     type: 'string'
                 })
-                .option('permission', {
+                .option('p', {
+                    alias: 'permission',
                     desc: 'Library permission',
                     choices: ['private', 'require', 'view'],
                     default: 'private',
                     type: 'string'
                 })
-                .option('supported', {
+                .option('s', {
+                    alias: 'supported',
                     desc: 'Library status (supported or not)',
                     default: true,
                     type: 'boolean'
@@ -120,7 +124,8 @@ var argv = require('yargs')
                     desc: 'Reference to the library version sources (at GitHub)',
                     type: 'string'
                 })
-                .option('supported', {
+                .option('s', {
+                    alias: 'supported',
                     desc: 'Version status (supported or not)',
                     default: true,
                     type: 'boolean'
@@ -128,12 +133,14 @@ var argv = require('yargs')
                 .option('v', {
                     alias: 'version',
                     desc: 'Library version string',
-                    type: 'string'
+                    type: 'string',
+                    required: true
                 })
                 .option('f', {
                     alias: 'file',
                     desc: 'Source code of the library',
-                    type: 'string'
+                    type: 'string',
+                    required: true
                 })
         },
         handler: createVersion
@@ -166,7 +173,8 @@ var argv = require('yargs')
                     desc: 'Reference to the library version sources (at GitHub)',
                     type: 'string'
                 })
-                .option('supported', {
+                .option('s', {
+                    alias: 'supported',
                     desc: 'Version status (supported or not)',
                     default: true,
                     type: 'boolean'

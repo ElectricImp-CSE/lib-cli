@@ -51,6 +51,12 @@ $ node lib create -k <key> -n <name> -d <description> -r <reference> --supported
 
 Creates the new library with the specified name and description.
 
+If you need to specify an account that you need to create the library for 
+(assuming you have appropriate permissions to do so) use ``-a <account name>`` argument. 
+If you need to create a *global* library (which essentially means belonging to the *electricimp* account), 
+use -g option.
+
+
 ### Updating a Library
 
 ```

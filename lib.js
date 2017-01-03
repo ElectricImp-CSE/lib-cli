@@ -3,15 +3,15 @@
 // Copyright (c) 2016 Electric Imp
 
 // Staging server API URL
-const API_URL_HOST = "api.ei.run";
-const API_PATH_V5_LIBS = "/v5/libraries/";
+const API_URL_HOST = 'api.ei.run';
+const API_PATH_V5_LIBS = '/v5/libraries/';
 
-var fs = require("fs");
+var fs = require('fs');
 var https = require('https');
-var util = require("util");
+var util = require('util');
 
 var argv = require('yargs')
-    .usage("Usage: $0 <command> [options]")
+    .usage('Usage: $0 <command> [options]')
     .command({
         command: 'list',
         aliases: ['l'],
@@ -61,6 +61,17 @@ var argv = require('yargs')
                     default: true,
                     type: 'boolean'
                 })
+                .option('a', {
+                    alias: 'account',
+                    desc: 'Account on behalf of which the operation is performed',
+                    type: 'string'
+                })
+                .option('g', {
+                    alias: 'global',
+                    desc: 'If the flag is specified, the operation is done on behalf of electricimp account ' +
+                    '(i.e. is equivalent to -a electricimp)',
+                    type: 'boolean'
+                })
         },
         handler: createLibrary
     })
@@ -90,13 +101,11 @@ var argv = require('yargs')
                     alias: 'permission',
                     desc: 'Library permission',
                     choices: ['private', 'require', 'view'],
-                    default: 'private',
                     type: 'string'
                 })
                 .option('s', {
                     alias: 'supported',
                     desc: 'Library status (supported or not)',
-                    default: true,
                     type: 'boolean'
                 })
         },
@@ -176,7 +185,6 @@ var argv = require('yargs')
                 .option('s', {
                     alias: 'supported',
                     desc: 'Version status (supported or not)',
-                    default: true,
                     type: 'boolean'
                 })
         },
@@ -199,33 +207,60 @@ function getHTTPOptions(argv, method, path) {
         host: API_URL_HOST,
         path: path,
         headers: {
-            "Authorization": "Basic " + new Buffer(argv.key).toString("base64"),
-            "Content-Type": "application/vnd.api+json"
+            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+            'Content-Type': 'application/vnd.api+json'
         },
         method: method
     }
 }
 
-function getPayload(id, type, name, description, reference, permission, supported, version, code) {
-    return {
+function getPayload(id, type, name, description, reference, permission, supported, version, code, accountId) {
+    var payload = {
         data: {
-            attributes: {
-                name: name,
-                description: description,
-                reference: reference,
-                permission: permission,
-                supported: supported,
-                code: code,
-                version: version
-            },
-            type: type,
-            id: id
+            attributes: {}
+        }
+    };
+
+    if (id) {
+        payload.data['id'] = id;
+    }
+    if (type) {
+        payload.data['type'] = type;
+    }
+    if (name) {
+        payload.data.attributes['name'] = name;
+    }
+    if (description) {
+        payload.data.attributes['description'] = description;
+    }
+    if (reference) {
+        payload.data.attributes['reference'] = reference;
+    }
+    if (permission) {
+        payload.data.attributes['permission'] = permission;
+    }
+    if (supported) {
+        payload.data.attributes['supported'] = supported;
+    }
+    if (code) {
+        payload.data.attributes['code'] = code;
+    }
+    if (version) {
+        payload.data.attributes['version'] = version;
+    }
+    if (accountId) {
+        payload.data['ralationships'] = {
+            owner: {
+                type: 'account',
+                id: accountId
+            }
         }
     }
+    return payload;
 }
 
 function list(argv, callback) {
-    var options = getHTTPOptions(argv, "GET", API_PATH_V5_LIBS);
+    var options = getHTTPOptions(argv, 'GET', API_PATH_V5_LIBS);
 
     var reqCallback = function (response) {
         var str = '';
@@ -263,24 +298,70 @@ function listLibraries(argv) {
     });
 }
 
-function createLibrary(argv) {
-    var options = getHTTPOptions(argv, "POST", API_PATH_V5_LIBS);
-    var payload = getPayload(undefined, "library", argv.n, argv.d, argv.r, argv.permission, argv.supported);
+function retrieveAccountIdAndDo(argv, callback) {
+    var options = {
+        host: API_URL_HOST,
+        path: '/v5/accounts',
+        headers: {
+            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+            'Content-Type': 'application/vnd.api+json'
+        },
+        method: 'GET'
+    };
 
-    var callback = function (response) {
+    var accountsCallback = function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
         });
 
         response.on('end', function () {
-            logJSONString(str);
+            var accounts = JSON.parse(str).data;
+            var foundId = null;
+            for (var i in accounts) {
+                var a = accounts[i];
+                var targetAccount = argv.g ? 'electricimp' : argv.a;
+                if (a.attributes.name == argv.a) {
+                    foundId = a.id;
+                    break;
+                }
+            }
+
+            if (foundId) {
+                callback(foundId);
+            }
         });
     };
+    https.request(options, accountsCallback).end();
+}
 
-    var req = https.request(options, callback);
-    req.write(JSON.stringify(payload));
-    req.end();
+function createLibrary(argv) {
+    var createLibraryForAccountId = function (accountId) {
+        var options = getHTTPOptions(argv, 'POST', API_PATH_V5_LIBS);
+        var payload = getPayload(undefined, 'library', argv.n, argv.d, argv.r, argv.permission, argv.supported, undefined, undefined, accountId);
+
+        var callback = function (response) {
+            var str = '';
+            response.on('data', function (chunk) {
+                str += chunk;
+            });
+
+            response.on('end', function () {
+                logJSONString(str);
+            });
+        };
+
+        var req = https.request(options, callback);
+        req.write(JSON.stringify(payload));
+        req.end();
+    };
+
+    if (argv.a) {
+        retrieveAccountIdAndDo(argv, createLibraryForAccountId);
+    } else {
+        // No account specified, use undefined
+        createLibraryForAccountId();
+    }
 }
 
 function getLibraryByName(libraryName, argv, callback) {
@@ -299,7 +380,7 @@ function getLibraryByName(libraryName, argv, callback) {
         if (found) {
             callback(found);
         } else {
-            console.log("Error: can not find the library specified!")
+            console.log('Error: can not find the library specified!')
         }
     });
 }
@@ -318,8 +399,10 @@ function logJSONResponseStringCallback(response) {
 function updateLibrary(argv) {
     getLibraryByName(argv.name, argv, function (foundLib) {
         var libId = foundLib.id;
-        var options = getHTTPOptions(argv, "PATCH", API_PATH_V5_LIBS + libId);
-        var payload = getPayload(libId, "library", undefined, argv.d, argv.r, argv.permission, argv.supported);
+        var options = getHTTPOptions(argv, 'PATCH', API_PATH_V5_LIBS + libId);
+        var payload = getPayload(libId, 'library', undefined, argv.d, argv.r, argv.permission, argv.supported, undefined, undefined);
+
+        console.log(payload);
 
         var req = https.request(options, logJSONResponseStringCallback);
         req.write(JSON.stringify(payload));
@@ -330,13 +413,13 @@ function updateLibrary(argv) {
 function createVersion(argv) {
     fs.readFile(argv.file, 'utf8', function (err, code) {
         if (err) {
-            console.error("Error reading the file: " + argv.file);
+            console.error('Error reading the file: ' + argv.file);
             return
         }
         getLibraryByName(argv.name, argv, function (foundLib) {
             var libId = foundLib.id;
-            var options = getHTTPOptions(argv, "POST", API_PATH_V5_LIBS + libId + '/versions');
-            var payload = getPayload(undefined, "libraryversion", undefined, argv.d, argv.r, undefined, argv.supported, argv.v, code);
+            var options = getHTTPOptions(argv, 'POST', API_PATH_V5_LIBS + libId + '/versions');
+            var payload = getPayload(undefined, 'libraryversion', undefined, argv.d, argv.r, undefined, argv.supported, argv.v, code);
 
             var req = https.request(options, logJSONResponseStringCallback);
             req.write(JSON.stringify(payload));
@@ -359,12 +442,12 @@ function updateVersion(argv) {
         }
 
         if (!foundVersion) {
-            console.log("Error: no specified version found!");
+            console.log('Error: no specified version found!');
             return;
         }
 
-        var options = getHTTPOptions(argv, "PATCH", API_PATH_V5_LIBS + foundLib.id + '/versions/' + foundVersion.id);
-        var payload = getPayload(foundVersion.id, "libraryversion", undefined, argv.d, argv.r, undefined, argv.supported);
+        var options = getHTTPOptions(argv, 'PATCH', API_PATH_V5_LIBS + foundLib.id + '/versions/' + foundVersion.id);
+        var payload = getPayload(foundVersion.id, 'libraryversion', undefined, argv.d, argv.r, undefined, argv.supported, undefined, undefined);
 
         var req = https.request(options, logJSONResponseStringCallback);
         req.write(JSON.stringify(payload));

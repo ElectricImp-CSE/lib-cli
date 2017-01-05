@@ -249,7 +249,7 @@ function getPayload(id, type, name, description, reference, permission, supporte
         payload.data.attributes['version'] = version;
     }
     if (accountId) {
-        payload.data['ralationships'] = {
+        payload.data['relationships'] = {
             owner: {
                 type: 'account',
                 id: accountId

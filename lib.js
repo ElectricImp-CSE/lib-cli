@@ -321,7 +321,7 @@ function retrieveAccountIdAndDo(argv, callback) {
             for (var i in accounts) {
                 var a = accounts[i];
                 var targetAccount = argv.g ? 'electricimp' : argv.a;
-                if (a.attributes.name == argv.a) {
+                if (a.attributes.name == targetAccount) {
                     foundId = a.id;
                     break;
                 }
@@ -356,7 +356,7 @@ function createLibrary(argv) {
         req.end();
     };
 
-    if (argv.a) {
+    if (argv.a || argv.g) {
         retrieveAccountIdAndDo(argv, createLibraryForAccountId);
     } else {
         // No account specified, use undefined

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright (c) 2016 Electric Imp
+// Copyright (c) 2016-2017 Electric Imp
 
 const API_URL_HOST = "api.ei.run";
 

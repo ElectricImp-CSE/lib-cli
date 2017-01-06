@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-// Copyright (c) 2016 Electric Imp
+// Copyright (c) 2016-2017 Electric Imp
 
-// Staging server API URL
-const API_URL_HOST = 'api.ei.run';
+// API server API URLs
+const API_URL_HOST_STAGING      = 'api.ei.run';
+const API_URL_HOST_PRODUCTION   = 'api.electricimp.com';
+
 const API_PATH_V5_LIBS = '/v5/libraries/';
 
 var fs = require('fs');
@@ -196,15 +198,23 @@ var argv = require('yargs')
         type: 'string',
         required: true
     })
+    .option('production', {
+        desc: 'If specified acts on the production server (be cautious to use it!)',
+        type: 'boolean'
+    })
     .help('h')
     .alias('h', 'help')
-    .global('k')
+    .global(['k', 'production'])
     .wrap(100)
     .argv;
 
+function getAPIServerURL(argv) {
+    return argv.production ? API_URL_HOST_PRODUCTION : API_URL_HOST_STAGING;
+}
+
 function getHTTPOptions(argv, method, path) {
     return {
-        host: API_URL_HOST,
+        host: getAPIServerURL(argv),
         path: path,
         headers: {
             'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
@@ -300,7 +310,7 @@ function listLibraries(argv) {
 
 function retrieveAccountIdAndDo(argv, callback) {
     var options = {
-        host: API_URL_HOST,
+        host: getAPIServerURL(argv),
         path: '/v5/accounts',
         headers: {
             'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),

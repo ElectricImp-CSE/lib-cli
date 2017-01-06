@@ -239,7 +239,7 @@ function getPayload(id, type, name, description, reference, permission, supporte
     if (permission) {
         payload.data.attributes['permission'] = permission;
     }
-    if (supported) {
+    if (supported != null) {
         payload.data.attributes['supported'] = supported;
     }
     if (code) {

@@ -2,7 +2,9 @@
 
 // Copyright (c) 2016-2017 Electric Imp
 
-const API_URL_HOST = "api.ei.run";
+// API server API URLs
+const API_URL_HOST_STAGING      = 'api.ei.run';
+const API_URL_HOST_PRODUCTION   = 'api.electricimp.com';
 
 var https = require('https');
 
@@ -16,14 +18,22 @@ var argv = require('yargs')
         alias: 'password',
         desc: 'User password'
     })
+    .option('production', {
+        desc: 'If specified acts on the production server (be cautious to use it!)',
+        type: 'boolean'
+    })
     .required(['e', 'p'])
     .help('h')
     .alias('h', 'help')
     .argv;
 
+function getAPIServerURL() {
+    return argv.production ? API_URL_HOST_PRODUCTION : API_URL_HOST_STAGING;
+}
+
 function getHTTPOptions() {
     return {
-        host: API_URL_HOST,
+        host: getAPIServerURL(),
         path: '/account/login',
         headers: {
             'Content-Type': 'application/json'

@@ -3,14 +3,15 @@
 // Copyright (c) 2016-2017 Electric Imp
 
 // API server API URLs
-const API_URL_HOST_STAGING      = 'api.ei.run';
-const API_URL_HOST_PRODUCTION   = 'api.electricimp.com';
+const API_URL_HOST_STAGING = 'api.ei.run';
+const API_URL_HOST_PRODUCTION = 'api.electricimp.com';
 
 const API_PATH_V5_LIBS = '/v5/libraries/';
 
 var fs = require('fs');
 var https = require('https');
 var util = require('util');
+var request = require('sync-request');
 
 var argv = require('yargs')
     .usage('Usage: $0 <command> [options]')
@@ -269,20 +270,31 @@ function getPayload(id, type, name, description, reference, permission, supporte
     return payload;
 }
 
-function list(argv, callback) {
-    var options = getHTTPOptions(argv, 'GET', API_PATH_V5_LIBS);
+function list(argv, callback, libs = [],
+              libsURL = API_PATH_V5_LIBS + "?page[number]=1&page[size]=100") {
+    // Get the first page for the libraries list
+    let options = getHTTPOptions(argv, 'GET', libsURL);
+    let result = libs;
 
-    var reqCallback = function (response) {
-        var str = '';
+    let reqCallback = function (response) {
+        let str = '';
         response.on('data', function (chunk) {
             str += chunk;
         });
 
         response.on('end', function () {
-            var libs = JSON.parse(str).data;
-            callback(libs);
+            let responseObj = JSON.parse(str);
+            result = result.concat(responseObj.data);
+
+            let nextURL = responseObj.links.next;
+            if (nextURL) {
+                list(argv, callback, result, nextURL);
+            } else {
+                callback(result);
+            }
         });
     };
+
     https.request(options, reqCallback).end();
 }
 
@@ -302,7 +314,29 @@ function listLibraries(argv) {
         }
         libs.forEach(function (library) {
             if (!argv.name || library.attributes.name.indexOf(argv.name) >= 0) {
-                logObj(library);
+                let libraryObject = {
+                    name: library.attributes.name,
+                    permission: library.attributes.permission,
+                    supported: library.attributes.supported,
+                    versions: []
+                };
+                let versions = library.relationships.versions;
+                if (versions) {
+                    versions.forEach(function(v) {
+                        let headers = {
+                            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+                            'Content-Type' : 'application/vnd.api+json'
+                        };
+
+                        let res = request('GET',
+                            "https://" + getAPIServerURL(argv) + API_PATH_V5_LIBS + "/" + library.id + "/versions/" + v.id,
+                            {headers});
+                        let vObj = JSON.parse(res.getBody('utf8'));
+                        libraryObject.versions.push(vObj.data.attributes.version);
+                    })
+                }
+                // logObj(library);
+                logObj(libraryObject);
             }
         })
     });

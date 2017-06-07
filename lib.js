@@ -332,6 +332,7 @@ function listLibraries(argv) {
                             "https://" + getAPIServerURL(argv) + API_PATH_V5_LIBS + "/" + library.id + "/versions/" + v.id,
                             {headers});
                         let vObj = JSON.parse(res.getBody('utf8'));
+                        // logObj(vObj);
                         libraryObject.versions.push(vObj.data.attributes.version);
                     })
                 }

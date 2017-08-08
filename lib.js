@@ -480,7 +480,7 @@ function updateVersion(argv) {
             var versions = foundLib.relationships.versions;
             for (index in versions) {
                 var v = versions[index];
-                if (v.id == argv.version) {
+                if (v.id === foundLib.id + ":" + argv.version) {
                     foundVersion = v;
                 }
             }

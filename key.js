@@ -20,7 +20,8 @@ var argv = require('yargs')
     })
     .option('production', {
         desc: 'If specified acts on the production server (be cautious to use it!)',
-        type: 'boolean'
+        type: 'boolean',
+        default: true
     })
     .required(['e', 'p'])
     .help('h')

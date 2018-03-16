@@ -116,7 +116,7 @@ var argv = require('yargs')
     })
     .command({
         command: 'create-version',
-        aliases: ['cv', 'version'],
+        aliases: ['cv'],
         desc: 'Creates the new library version',
         builder: function (yargs) {
             yargs
@@ -143,7 +143,7 @@ var argv = require('yargs')
                     type: 'boolean'
                 })
                 .option('v', {
-                    alias: 'version',
+                    alias: 'ver',
                     desc: 'Library version string',
                     type: 'string',
                     required: true
@@ -170,7 +170,7 @@ var argv = require('yargs')
                     required: true
                 })
                 .option('v', {
-                    alias: 'version',
+                    alias: 'ver',
                     desc: 'Library version string',
                     type: 'string',
                     required: true
@@ -466,7 +466,9 @@ function createVersion(argv) {
             var libId = foundLib.id;
             var options = getHTTPOptions(argv, 'POST', API_PATH_V5_LIBS + libId + '/versions');
             var payload = getPayload(undefined, 'libraryversion', undefined, argv.d, argv.r, undefined, argv.supported, argv.v, code);
-
+       
+            console.log(argv);
+           
             var req = https.request(options, logJSONResponseStringCallback);
             req.write(JSON.stringify(payload));
             req.end();

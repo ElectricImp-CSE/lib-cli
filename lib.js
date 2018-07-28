@@ -347,7 +347,7 @@ function listLibraries(argv) {
 function retrieveAccountIdAndDo(argv, callback) {
     var options = {
         host: getAPIServerURL(argv),
-        path: '/v5/accounts',
+        path: '/v5/accounts?page[size]=100',
         headers: {
             'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
             'Content-Type': 'application/vnd.api+json'

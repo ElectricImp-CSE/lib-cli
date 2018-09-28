@@ -219,7 +219,7 @@ function getHTTPOptions(argv, method, path) {
         host: getAPIServerURL(argv),
         path: path,
         headers: {
-            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+            'Authorization': 'Bearer ' + argv.key,
             'Content-Type': 'application/vnd.api+json'
         },
         method: method
@@ -325,7 +325,7 @@ function listLibraries(argv) {
                 if (versions) {
                     versions.forEach(function(v) {
                         let headers = {
-                            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+                            'Authorization': 'Bearer ' + argv.key,
                             'Content-Type' : 'application/vnd.api+json'
                         };
 
@@ -345,16 +345,17 @@ function listLibraries(argv) {
 }
 
 function retrieveAccountIdAndDo(argv, callback) {
+
     var options = {
         host: getAPIServerURL(argv),
         path: '/v5/accounts?page[size]=100',
         headers: {
-            'Authorization': 'Basic ' + new Buffer(argv.key).toString('base64'),
+            'Authorization': 'Bearer ' + argv.key,
             'Content-Type': 'application/vnd.api+json'
         },
         method: 'GET'
     };
-
+    
     var accountsCallback = function (response) {
         var str = '';
         response.on('data', function (chunk) {
@@ -378,6 +379,7 @@ function retrieveAccountIdAndDo(argv, callback) {
             }
         });
     };
+    
     https.request(options, accountsCallback).end();
 }
 

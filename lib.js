@@ -368,7 +368,7 @@ function retrieveAccountIdAndDo(argv, callback) {
             for (var i in accounts) {
                 var a = accounts[i];
                 var targetAccount = argv.g ? 'electricimp' : argv.a;
-                if (a.attributes.name == targetAccount) {
+                if (a.attributes.username == targetAccount) {
                     foundId = a.id;
                     break;
                 }

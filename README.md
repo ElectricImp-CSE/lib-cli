@@ -11,28 +11,20 @@ To use the tools you need to have the Node.js/npm installed.
 
 ### Help
 
-**lib.js**: you can always use **-h** argument along with a command (`node lib [option] -h`) to show descriptions of
+**lib-cli.js**: you can always use **-h** argument along with a command (`node lib [option] -h`) to show descriptions of
 arguments expected to be used with the command. For example:
 
 ```
-$ node lib.js list -h
-lib.js list
+$ node lib-cli.js list -h
+lib-cli.js list
 
 Options:
-  -k, --key   Library API key                   [string] [required]
-  -h, --help  Show help                                   [boolean]
-  -n, --name  Library name                                 [string]
+  -k, --key   impCentral Login key                     [string] [required]
+  -h, --help  Show help                                [boolean]
+  -n, --name  Library name                             [string]
 
 ```
 
-
-**key.js**: `node key -h` shows help on the key tool.
-
-### Library API Key Generation
-
-```
-$ node key -e <email address or username> -p <password>
-```
 
 ### Listing Libraries
 

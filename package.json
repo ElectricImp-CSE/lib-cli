@@ -1,0 +1,39 @@
+{
+  "name": "lib-cli",
+  "version": "0.1.0",
+  "description": "Electric Imp Libraries Management Tool",
+  "main": "lib/lib-cli.js",
+  "engines": {
+    "node": ""
+  },
+  "preferGlobal": true,
+  "bin": {
+    "lib-cli": "lib/lib-cli.js"
+  },
+  "files": [
+    "/lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ElectricImp-CSE/lib-cli.git"
+  },
+  "keywords": [
+    "electric",
+    "imp",
+    "central",
+    "impCentral",
+    "library",
+    "cli"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ElectricImp-CSE/lib-cli/issues"
+  },
+  "homepage": "https://github.com/ElectricImp-CSE/lib-cli",
+  "dependencies": {
+    "optimist": "latest",
+    "imp-central-api": "latest",
+    "sync-request": "latest",
+    "yargs": "latest"
+  }
+}

@@ -7,7 +7,7 @@ Library Management Command Line Tools
 To use the tools you need to have the Node.js/npm installed.
 
 1. Clone repository to your filesystem and change to it
-1. Run ``npm i yargs``
+1. Run ``npm i -g``
 
 ### Help
 
@@ -15,21 +15,25 @@ To use the tools you need to have the Node.js/npm installed.
 arguments expected to be used with the command. For example:
 
 ```
-$ node lib-cli.js list -h
-lib-cli.js list
+$ lib-cli list -h
+lib-cli list
+
+Lists the specified or all libraries available
 
 Options:
-  -k, --key   impCentral Login key                     [string] [required]
-  -h, --help  Show help                                [boolean]
-  -n, --name  Library name                             [string]
-
+  --version     Show version number                                                        [boolean]
+  -k, --key     impCentral login key                                             [string] [required]
+  --production  If specified acts on the production server (be cautious to use it!)
+                                                                           [boolean] [default: true]
+  -h, --help    Show help                                                                  [boolean]
+  -n, --name    Library name                                                                [string]
 ```
 
 
 ### Listing Libraries
 
 ```
-$ node lib list -k <key> [-n <name>] 
+$ lib-cli list -k <key> [-n <name>] 
 ```
 
 Lists all the libraries or ones that match the library name specified.
@@ -38,7 +42,7 @@ Lists all the libraries or ones that match the library name specified.
 ### Creating a Library
 
 ```
-$ node lib create -k <key> -n <name> -d <description> -r <reference> --supported (true|false) --permission (private|require|view)
+$ lib-cli create -k <key> -n <name> -d <description> -r <reference> --supported (true|false) --permission (private|require|view)
 ```
 
 Creates the new library with the specified name and description.
@@ -52,7 +56,7 @@ use -g option.
 ### Updating a Library
 
 ```
-$ node lib update -k <key> -n <name> -d <description> -r <reference> --supported (true|false) --permission (private|require|view)
+$ lib-cli update -k <key> -n <name> -d <description> -r <reference> --supported (true|false) --permission (private|require|view)
 ```
 
 Updates the library with the name specified.
@@ -60,7 +64,7 @@ Updates the library with the name specified.
 ### Creating a new Library Version
 
 ```
-$ node lib create-version -k <key> -n <name> -d <description> -r <reference> --supported (true|false) -v <version> -f <source file> 
+$ lib-cli create-version -k <key> -n <name> -d <description> -r <reference> --supported (true|false) -v <version> -f <source file> 
 ```
 
 Creates the new version for the library with the name specified out of the source code provided.
@@ -68,7 +72,7 @@ Creates the new version for the library with the name specified out of the sourc
 ### Updating the Library Version
 
 ```
-$ node lib update-version -k <key> -n <name> -v <version> -d <description> -r <reference> --supported (true|false)  
+$ lib-cli update-version -k <key> -n <name> -v <version> -d <description> -r <reference> --supported (true|false)  
 ```
 
 Updates the specified library version.

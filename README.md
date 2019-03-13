@@ -1,6 +1,6 @@
 # lib-cli 
 
-Library Management Command Line Tools
+Electric Imp Library Management Command Line Tool
 
 ## Installation
 

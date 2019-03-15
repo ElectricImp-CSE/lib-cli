@@ -38,10 +38,12 @@ Making use of lib-cli requires a login key for an Electric Imp account. You can 
 $ lib-cli list -k <key> [-n <name>] 
 ```
 
-Lists all the libraries, or ones that match the specified library name. The name value is case-sensitive. For example:
+Lists all the libraries, or ones that match the specified library name. The name value is case-sensitive. 
+
+#### Example ####
 
 ```bash
-$ lib-cli list -k 123456abcdef -n DarkSky
+$ lib-cli list -k <YOUR_KEY> -n DarkSky
 ```
 
 yields:
@@ -80,7 +82,7 @@ If you need to specify an account that you need to create the library for a spec
 Create a new public library, MyNewLibrary:
 
 ```bash
-$ lib-cli create -k 123456abcdef -n MyNewLibrary -d 'A useful web service integration' -r https://github.com/electricimp/mynewlibrary --supported true --permission view -g
+$ lib-cli create -k <YOUR_KEY> -n MyNewLibrary -d 'A useful web service integration' -r https://github.com/electricimp/mynewlibrary --supported true --permission view -g
 ```
 
 ## Updating A Library ##
@@ -110,7 +112,7 @@ To update the version number without changing the code, eg. moving a library fro
 Publish a new public library, MyNewLibrary 1.0.0:
 
 ```bash
-$ lib-cli create-version -k 123456abcdef -n MyNewLibrary -v 1.0.0 -f /Users/smitty/Documents/GitHub/MyNewLibrary/mynewlibrary.agent.lib.nut
+$ lib-cli create-version -k <YOUR_KEY> -n MyNewLibrary -v 1.0.0 -f /Users/smitty/Documents/GitHub/MyNewLibrary/mynewlibrary.agent.lib.nut
 ```
 
 ## Typical Workflows ##

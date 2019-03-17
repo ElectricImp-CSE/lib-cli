@@ -1,4 +1,4 @@
-# lib-cli 0.1.0 #
+# lib-cli 0.1.2 #
 
 The Electric Imp library management command-line tool.
 
